@@ -5,10 +5,10 @@
 ![Python](https://img.shields.io/badge/JavaScript-orange.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-<p align="center"><a href="https://SubhojitGhimire.github.io/">
-  <img width="1855" height="873" alt="image" src="https://github.com/user-attachments/assets/7dce1b61-5af7-43c4-8b06-be41751492dd" />
-  SubhojitGhimire.github.io
-</a></p>
+<a href="https://SubhojitGhimire.github.io/">
+  <img width="1919" height="1016" alt="image-preview" src="https://github.com/user-attachments/assets/0d4a6ae7-41be-4955-86f5-7b6d42cc75c2" />
+<p align="center">SubhojitGhimire.github.io</p>
+</a>
 
 ---
 
