@@ -160,18 +160,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const workerUrl = 'https://portfolio-gemini-proxy.subhojitg.workers.dev';
 
         try {
-            const response = await fetch(workerUrl, {
+            const readmeResponse = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${repoName}/readme`);
+            if (!readmeResponse.ok) {
+                throw new Error('README not found or GitHub API limit reached.');
+            }
+            const readmeData = await readmeResponse.json();
+            const readmeContent = atob(readmeData.content);
+
+            const workerResponse = await fetch(workerUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ repoName: repoName })
+                body: JSON.stringify({ readmeContent: readmeContent })
             });
 
-            if (!response.ok) {
-                const errorResult = await response.json();
+            if (!workerResponse.ok) {
+                const errorResult = await workerResponse.json();
                 throw new Error(errorResult.error || 'Failed to get summary from worker.');
             }
 
-            const result = await response.json();
+            const result = await workerResponse.json();
 
             if (result.candidates && result.candidates.length > 0) {
                 const summaryText = result.candidates[0].content.parts[0].text;
