@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
         summaryContainer.innerHTML = '<div class="flex items-center"><div class="loader"></div><span>Summarizing with Gemini...</span></div>';
         button.disabled = true;
 
-        const workerUrl = 'portfolio-gemini-proxy.subhojitg.workers.dev';
+        const workerUrl = 'https://portfolio-gemini-proxy.subhojitg.workers.dev';
 
         try {
             const response = await fetch(workerUrl, {
