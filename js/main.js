@@ -165,12 +165,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('README not found or GitHub API limit reached.');
             }
             const readmeData = await readmeResponse.json();
-            const readmeContent = atob(readmeData.content);
+
+            const readmeContentBase64 = readmeData.content;
 
             const workerResponse = await fetch(workerUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ readmeContent: readmeContent })
+                body: JSON.stringify({ readmeContentBase64: readmeContentBase64 })
             });
 
             if (!workerResponse.ok) {
@@ -225,4 +226,5 @@ fetch('./assets/images/4AAQSkZJRgABAQEBLAEsAAD.txt')
     })
     .catch(error => {
         console.error('Error loading Base64 image:', error);
+
     });
