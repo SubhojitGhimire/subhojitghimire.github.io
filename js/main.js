@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closePanelBtn = document.getElementById('close-panel-btn');
 
     const GITHUB_USERNAME = 'SubhojitGhimire';
-    const RESUME_PATH = './assets/files/href-resume_subhojit_ghimire.pdf'; 
+    const RESUME_PATH = './assets/files/href-resume_subhojit_ghimire.pdf';
     const LINKEDIN_EMBED_URL = 'https://www.linkedin.com/embed/in/subhojitghimire';
     const LINKEDIN_USERNAME = 'subhojitghimire';
 
@@ -17,15 +17,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const star = document.createElement('div');
         star.className = 'star';
-        
+
         star.style.left = `${e.clientX + Math.random() * 10 - 5}px`;
         star.style.top = `${e.clientY + Math.random() * 10 - 5}px`;
 
-        const size = Math.random() * 4 + 2; 
+        const size = Math.random() * 4 + 2;
         star.style.width = `${size}px`;
         star.style.height = `${size}px`;
         star.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        
+
         document.body.appendChild(star);
 
         setTimeout(() => {
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'linkedin': loadLinkedIn(); break;
             case 'github': loadGithubRepos(); break;
         }
-        
+
     };
 
     const closePanel = () => {
@@ -93,46 +93,86 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // The following section is summarizeReadme function that uses plain text Gemini API without encryption or secure server. NOT SAFE to expose API Key when hosted publicly on GitHub
+    // const summarizeReadme = async (repoName, button) => {
+    //     const summaryContainer = document.getElementById(`summary-${repoName}`);
+    //     summaryContainer.style.display = 'block';
+    //     summaryContainer.innerHTML = '<div class="flex items-center"><div class="loader"></div><span>Summarizing with Gemini...</span></div>';
+    //     button.disabled = true;
+
+    //     try {
+    //         const readmeResponse = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${repoName}/readme`);
+    //         if (!readmeResponse.ok) {
+    //             throw new Error('README not found or API limit reached.');
+    //         }
+    //         const readmeData = await readmeResponse.json();
+    //         const readmeContent = atob(readmeData.content);
+
+    //         const prompt = `Summarize the following README.md for a software project in 2-3 concise sentences. Focus on the project's main goal and the technologies used. README content:\n\n---\n${readmeContent}`;
+
+    //         const payload = {
+    //             contents: [{ role: "user", parts: [{ text: prompt }] }]
+    //         };
+    //         const apiKey = "";
+    //         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+    //         if (!apiKey) {
+    //             summaryContainer.innerHTML = '<span class="text-yellow-400">Gemini API key is missing. Add your API key in main.js to enable summarization.</span>';
+    //             return;
+    //         }
+
+    //         const geminiResponse = await fetch(apiUrl, {
+    //             method: 'POST',
+    //             headers: { 'Content-Type': 'application/json' },
+    //             body: JSON.stringify(payload)
+    //         });
+
+    //         if (!geminiResponse.ok) {
+    //                 const errorBody = await geminiResponse.text();
+    //                 throw new Error(`Gemini API Error: ${geminiResponse.status} ${errorBody}`);
+    //         }
+
+    //         const result = await geminiResponse.json();
+
+    //         if (result.candidates && result.candidates.length > 0) {
+    //             const summaryText = result.candidates[0].content.parts[0].text;
+    //             summaryContainer.innerHTML = summaryText.replace(/\n/g, '<br>');
+    //         } else {
+    //             throw new Error('No summary returned from Gemini.');
+    //         }
+
+    //     } catch (error) {
+    //         console.error('Summarization failed:', error);
+    //         summaryContainer.innerHTML = `<span class="text-red-400">Could not generate summary. ${error.message}</span>`;
+    //     } finally {
+    //         button.disabled = false;
+    //     }
+    // };
+
+
+    // The following section is the updated summarizeReadme function that uses a secure proxy -> Cloudflare Workers
     const summarizeReadme = async (repoName, button) => {
         const summaryContainer = document.getElementById(`summary-${repoName}`);
         summaryContainer.style.display = 'block';
         summaryContainer.innerHTML = '<div class="flex items-center"><div class="loader"></div><span>Summarizing with Gemini...</span></div>';
         button.disabled = true;
 
+        const workerUrl = 'portfolio-gemini-proxy.subhojitg.workers.dev';
+
         try {
-            const readmeResponse = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${repoName}/readme`);
-            if (!readmeResponse.ok) {
-                throw new Error('README not found or API limit reached.');
-            }
-            const readmeData = await readmeResponse.json();
-            const readmeContent = atob(readmeData.content);
-
-            const prompt = `Summarize the following README.md for a software project in 2-3 concise sentences. Focus on the project's main goal and the technologies used. README content:\n\n---\n${readmeContent}`;
-            
-            const payload = {
-                contents: [{ role: "user", parts: [{ text: prompt }] }]
-            };
-            const apiKey = "";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-            if (!apiKey) {
-                summaryContainer.innerHTML = '<span class="text-yellow-400">Gemini API key is missing. Add your API key in main.js to enable summarization.</span>';
-                return;
-            }
-            
-            const geminiResponse = await fetch(apiUrl, {
+            const response = await fetch(workerUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({ repoName: repoName })
             });
 
-            if (!geminiResponse.ok) {
-                    const errorBody = await geminiResponse.text();
-                    throw new Error(`Gemini API Error: ${geminiResponse.status} ${errorBody}`);
+            if (!response.ok) {
+                const errorResult = await response.json();
+                throw new Error(errorResult.error || 'Failed to get summary from worker.');
             }
 
-            const result = await geminiResponse.json();
-            
+            const result = await response.json();
+
             if (result.candidates && result.candidates.length > 0) {
                 const summaryText = result.candidates[0].content.parts[0].text;
                 summaryContainer.innerHTML = summaryText.replace(/\n/g, '<br>');
