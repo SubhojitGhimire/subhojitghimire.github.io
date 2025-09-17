@@ -83,6 +83,7 @@ body {
     transform: scale(1.1);
 }
 .summarize-btn {
+    display: none; /* Remove this line to show the button, if AI Summarize button needed and working */
     background-color: #3a3a3a;
     color: #E0E0E0;
     padding: 6px 12px;
