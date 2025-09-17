@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error(`GitHub API error: ${response.statusText}`);
             const repos = await response.json();
             let reposHtml = `<h2 class="text-2xl font-bold text-white mb-4">GitHub Repositories</h2><div class="space-y-4">`;
-            repos.slice(0, 10).forEach(repo => {
+            repos.forEach(repo => {
                 reposHtml += `
                     <div class="p-4 bg-gray-800 rounded-lg border border-gray-700">
                         <div class="flex justify-between items-start">
@@ -228,3 +228,4 @@ fetch('./assets/images/4AAQSkZJRgABAQEBLAEsAAD.txt')
         console.error('Error loading Base64 image:', error);
 
     });
+
